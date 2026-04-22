@@ -43,7 +43,7 @@ const Prediction = () => {
 
   useEffect(() => {
     if (location.state) {
-      setFormData({
+      const initialData = {
         student_name:          location.state.student_name || '',
         marks:                 location.state.marks || '',
         attendance:            location.state.attendance || '',
@@ -52,9 +52,29 @@ const Prediction = () => {
         coding_score:          location.state.coding_score || '',
         communication_score:   location.state.communication_score || '',
         cgpa:                  location.state.marks ? (location.state.marks / 10).toFixed(2) : ''
-      });
+      };
+      setFormData(initialData);
+      
+      // Auto-trigger prediction if we have the core metrics
+      if (initialData.marks && initialData.attendance) {
+        handleAutoPredict(initialData);
+      }
     }
   }, [location.state]);
+
+  const handleAutoPredict = async (data) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { cgpa, ...payload } = data;
+      const response = await axios.post(`${API_BASE_URL}/predict`, payload);
+      setResult(response.data);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to auto-predict. Ensure backend is running.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const handleChange = (e) => {
