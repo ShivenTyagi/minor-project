@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '../components/Layout';
 import AppIcon from '../components/AppIcon';
 import { API_BASE_URL } from '../config';
-import axios from 'axios';
+
 
 
 const StudentData = () => {
@@ -34,9 +34,9 @@ const StudentData = () => {
     communication_score: ''
   });
 
-  const limit = 5;
 
-  const fetchSummary = () => {
+
+  const fetchSummary = useCallback(() => {
     fetch(`${API_BASE_URL}/api/students/summary`)
       .then(res => res.json())
       .then(data => setSummary(data))
@@ -58,9 +58,9 @@ const StudentData = () => {
         }
       })
       .catch(err => console.error("Failed to fetch analytics for trend:", err));
-  };
+  }, []);
 
-  const fetchStudents = () => {
+  const fetchStudents = useCallback(() => {
     setLoading(true);
     fetch(`${API_BASE_URL}/api/students?page=${page}&limit=8${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}`)
       .then(res => res.json())
@@ -73,15 +73,15 @@ const StudentData = () => {
         console.error("Failed to fetch students:", err);
         setLoading(false);
       });
-  };
+  }, [page, searchQuery]);
 
   useEffect(() => {
     fetchSummary();
-  }, []);
+  }, [fetchSummary]);
 
   useEffect(() => {
-    fetchStudents();
-  }, [page, searchQuery]);
+    Promise.resolve().then(() => fetchStudents());
+  }, [fetchStudents]);
 
   const handleEnrollSubmit = async (e) => {
     e.preventDefault();

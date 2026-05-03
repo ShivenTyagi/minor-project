@@ -41,6 +41,8 @@ const Prediction = () => {
   };
 
 
+  const location = useLocation();
+
   useEffect(() => {
     if (location.state) {
       const initialData = {
@@ -66,7 +68,7 @@ const Prediction = () => {
     setLoading(true);
     setError(null);
     try {
-      const { cgpa, ...payload } = data;
+      const { cgpa: _, ...payload } = data;
       const response = await axios.post(`${API_BASE_URL}/predict`, payload);
       setResult(response.data);
     } catch (err) {
@@ -101,7 +103,7 @@ const Prediction = () => {
     setError(null);
     try {
       // Create a copy without the UI-only cgpa field for the backend
-      const { cgpa, ...payload } = formData;
+      const { cgpa: _, ...payload } = formData;
       const response = await axios.post(`${API_BASE_URL}/predict`, payload);
       setResult(response.data);
     } catch (err) {
